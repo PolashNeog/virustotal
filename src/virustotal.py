@@ -43,7 +43,7 @@ class VirusTotal:
     @limits(calls=4, period=61)
     def scan_url(self, incident):
         """Queries the VT API for a given URL. If no report found, submits URL for
-        scanning.
+        scanning. Decorators prevent exceeding VT's public API limit of 4/min.
 
         :param incident: an Incident class URL
         """
@@ -61,7 +61,7 @@ class VirusTotal:
 
         if r.status_code == 204:
             print('VT public API rate limit reached. Automatic retry in 60 seconds.')
-            countdown(60)
+            time.sleep(60)
             self.scan_url(incident)
 
         else:
@@ -99,8 +99,7 @@ class VirusTotal:
                   'positives': None,
                   'scan_date': None,
                   'scan_complete': False,
-                  'error': None
-                  }
+                  'error': None}
 
         for i in self.incidents:
             result['incident'] = i.name
@@ -112,18 +111,6 @@ class VirusTotal:
             result['scan_id'] = i.scan_id
             print('')
             pprint(result)
-
-
-def countdown(duration):
-    """Prints countdown to stdout.
-
-    :param duration: time in seconds
-    """
-    for i in range(duration, 0, -1):
-        sys.stdout.write('\r')
-        sys.stdout.write(f'{i} seconds remaining')
-        sys.stdout.flush()
-        time.sleep(1)
 
 
 if __name__ == '__main__':
