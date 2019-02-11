@@ -1,5 +1,5 @@
 """
-
+TODO: ADD DESCRIPTION
 """
 import sys
 import time
@@ -81,16 +81,15 @@ class VirusTotal:
                 incident.scan_date = resp['scan_date']
                 incident.positives = resp['positives']
                 incident.scan_count = resp['total']
-                print('*************************', resp['scan_date'])
                 pprint(r.json())
                 return
 
             else:
-                # incident.scan_id = resp['scan_id']
+                incident.scan_id = resp['scan_id']
                 self.scan_url(url)
-
                 pprint(r.json())
-            return
+
+        return
 
     def build_result_dict(self):
         """Builds and prints dictionary object for each incident."""
