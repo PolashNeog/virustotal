@@ -1,7 +1,13 @@
+"""Given URLs or files (file hashing/scanning coming soon!), queries the VirusTotal
+API for available scan reports. If no information is found for any incident, the item
+is automatically submitted for scanning and the result is fetched when completed.
+
+The code limits the number of API calls to 4 per minute to conform to VirusTotal's
+public API limit.
+
+VirusTotal: https://www.virustotal.com
+Public API reference: https://developers.virustotal.com/v2.0/reference
 """
-TODO: ADD DESCRIPTION
-"""
-import sys
 import time
 import requests
 import datetime
@@ -33,7 +39,7 @@ class VirusTotal:
     def add_resource(self, resource, category):
         """Creates a new Incident class object and adds it to the list of incidents.
 
-        :param resource: url of filename
+        :param resource: url or filename, as string
         :param category: category of resource, eg 'url' or 'file'
         """
         incident = Incident(resource, category)
@@ -45,7 +51,7 @@ class VirusTotal:
         """Queries the VT API for a given URL. If no report found, submits URL for
         scanning. Decorators prevent exceeding VT's public API limit of 4/min.
 
-        :param incident: an Incident class URL
+        :param incident: an Incident class URL, as a string
         """
         if url.scan_id:
             params = {'apikey': vt_key,

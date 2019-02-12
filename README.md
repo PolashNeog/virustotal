@@ -1,3 +1,3 @@
-# VirusTotal Public API Library
+# [VirusTotal](https://www.virustotal.com/#/home/url) Public API Library
 
 ### In progress -- More info coming soon...
