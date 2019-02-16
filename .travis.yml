@@ -4,4 +4,4 @@ python:
 install:
   - 'pip install pipenv'
   - 'pipenv sync'
-script: 'python -m pytest -pytest discover'
+script: 'pipenv run python -m pytest -pytest discover'
