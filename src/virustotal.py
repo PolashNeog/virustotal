@@ -53,13 +53,13 @@ class VirusTotal:
 
         :param incident: an Incident class URL, as a string
         """
-        if url.scan_id:
+        if incident.scan_id:
             params = {'apikey': vt_key,
-                      'resource': url.scan_id,
+                      'resource': incident.scan_id,
                       'scan': 1}
         else:
             params = {'apikey': vt_key,
-                      'resource': url.name,
+                      'resource': incident.name,
                       'scan': 1}
 
         req_url = self.base_url + 'url/report'
@@ -119,25 +119,25 @@ class VirusTotal:
 
 
 if __name__ == '__main__':
-
-    batch = VirusTotal()
-    # batch.add_resource('ogle', 'url')
-    batch.add_resource('435345wbungeeeokok.com', 'url')
-    batch.add_resource('www.pokokoktlyye.com', 'url')
-    batch.add_resource('www.breeeeeetyo.com', 'url')
-    # batch.add_resource('www.toggegole.com', 'url')
-    # batch.add_resource('www.reawwwmamamoo.com', 'url')
-    # batch.add_resource('www.nytwe432sfgrtimessss.com', 'url')
-    # batch.add_resource('danger.exe', 'file')
-
-    start = time.perf_counter()
-
-    urls = [i for i in batch.incidents if i.category == 'url']
-    print('URLS:', urls)
-
-    for url in urls:
-        batch.scan_url(url)
-        print(time.perf_counter() - start)
-
-    print('\nFINAL RESULTS FROM BATCH:')
-    batch.build_result_dict()
+    pass
+    # batch = VirusTotal()
+    # # batch.add_resource('ogle', 'url')
+    # batch.add_resource('435345wbungeeeokok.com', 'url')
+    # batch.add_resource('www.pokokoktlyye.com', 'url')
+    # batch.add_resource('www.breeeeeetyo.com', 'url')
+    # # batch.add_resource('www.toggegole.com', 'url')
+    # # batch.add_resource('www.reawwwmamamoo.com', 'url')
+    # # batch.add_resource('www.nytwe432sfgrtimessss.com', 'url')
+    # # batch.add_resource('danger.exe', 'file')
+    #
+    # start = time.perf_counter()
+    #
+    # urls = [i for i in batch.incidents if i.category == 'url']
+    # print('URLS:', urls)
+    #
+    # for url in urls:
+    #     batch.scan_url(url)
+    #     print(time.perf_counter() - start)
+    #
+    # print('\nFINAL RESULTS FROM BATCH:')
+    # batch.build_result_dict()
