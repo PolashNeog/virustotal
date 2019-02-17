@@ -1,4 +1,5 @@
 from src.virustotal import *
+from .travis.yml import *
 
 
 class TestClass:
