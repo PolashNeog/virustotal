@@ -14,7 +14,7 @@ import datetime
 from pprint import pprint
 from ratelimit import limits, sleep_and_retry
 # from secret import *
-from secret_dev import *
+from virustotal.secret_dev import *
 
 
 class Incident:
