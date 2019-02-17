@@ -3,4 +3,4 @@ init:
 	pipenv install
 
 test:
-	pipenv run .src/py.test tests
+	pipenv run py.test .src/tests
