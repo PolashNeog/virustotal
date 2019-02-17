@@ -1,5 +1,5 @@
 from virustotal.src.virustotal import *
-from virustotal.secret_dev import *
+# from virustotal.secret_dev import *
 
 class TestClass:
 
