@@ -1,4 +1,4 @@
-from src.virustotal import *
+from virustotal.src.virustotal import *
 from secret_dev import *
 
 class TestClass:
