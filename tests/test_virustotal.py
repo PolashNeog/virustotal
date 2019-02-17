@@ -16,7 +16,7 @@ class TestClass:
 
     def test_api_key(self):
         """Test the public API key is valid"""
-        params = {'apikey': vt_key,
+        params = {'apikey': avt_key,
                   'resource': self.inst.incidents[0].name,
                   'scan': 1}
         r = requests.get("https://www.virustotal.com/vtapi/v2/url/report",
