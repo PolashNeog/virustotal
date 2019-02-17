@@ -1,11 +1,13 @@
 from virustotal.src.virustotal import *
-# from virustotal.secret_dev import *
+from virustotal.secret_dev import *
 
 class TestClass:
 
     inst = VirusTotal()
     url = "www.google.com"
+    invalid_url = "ogle"
     inst.add_resource(url, "url")
+    inst.add_resource(invalid_url, "url")
 
     def test_add_resource(self):
         """Test the proper instantiation of an Incident"""
@@ -24,3 +26,15 @@ class TestClass:
         result = r.json()["response_code"]
 
         assert result == 1
+
+    def test_invalid_url(self):
+        """Test handling of invalid URL"""
+        params = {'apikey': vt_key,
+                  'resource': self.inst.incidents[1].name,
+                  'scan': 1}
+        r = requests.get("https://www.virustotal.com/vtapi/v2/url/report",
+            params=params)
+        result = r.json()
+
+        assert result["verbose_msg"] == "Invalid URL, the scan request was not " \
+                                        "queued"

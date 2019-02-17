@@ -13,8 +13,7 @@ import requests
 import datetime
 from pprint import pprint
 from ratelimit import limits, sleep_and_retry
-# from secret import *
-from virustotal.secret_dev import *
+from secret_dev import *
 
 
 class Incident:
@@ -76,10 +75,11 @@ class VirusTotal:
             resp = r.json()
 
             if resp['response_code'] == -1:
+                print("ITS HERE")
                 incident.scan_complete = True
                 incident.scan_date = datetime.datetime.today().strftime('%Y-%m-%d')
                 incident.error = resp['verbose_msg']
-                pprint(resp[0])
+                pprint(resp['verbose_msg'])
                 return
 
             elif 'positives' in resp:
@@ -122,7 +122,7 @@ class VirusTotal:
 if __name__ == '__main__':
     pass
     # batch = VirusTotal()
-    # # batch.add_resource('ogle', 'url')
+    # batch.add_resource('ogle', 'url')
     # batch.add_resource('435345wbungeeeokok.com', 'url')
     # batch.add_resource('www.pokokoktlyye.com', 'url')
     # batch.add_resource('www.breeeeeetyo.com', 'url')
