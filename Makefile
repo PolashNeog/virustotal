@@ -1,4 +1,4 @@
-TESTDIR = tests
+TESTDIR = src/tests
 
 init:
 	pip install pipenv
