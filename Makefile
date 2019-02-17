@@ -4,4 +4,4 @@ init:
 
 
 test:
-	pipenv run py.test_virustotal tests
+	pipenv run py.test tests
