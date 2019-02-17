@@ -3,4 +3,4 @@ init:
 	pipenv install --dev
 
 test:
-	pipenv run py.test_virustotal tests
+	pipenv run py.test test_virustotal
