@@ -1,2 +1,4 @@
+import os
+
 # VirusTotal API Key
-# vt_key = "vt_key"
+vt_key = os.environ["VTKEY"]
