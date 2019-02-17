@@ -1,8 +1,6 @@
-TESTDIR = src/tests
-
 init:
 	pip install pipenv
-	pipenv install --dev
+	pipenv install
 
 test:
-	pipenv run -- py.test test_virustotal -s -v
+	pipenv run py.test src/test_virustotal
