@@ -13,7 +13,7 @@ import requests
 import datetime
 from pprint import pprint
 from ratelimit import limits, sleep_and_retry
-from secret import *
+# from secret import *
 
 
 class Incident:
