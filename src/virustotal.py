@@ -92,7 +92,7 @@ class VirusTotal:
 
             else:
                 incident.scan_id = resp['scan_id']
-                self.scan_url(url)
+                self.scan_url(incident.name)
                 pprint(r.json())
 
         return
