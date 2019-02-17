@@ -5,4 +5,4 @@ init:
 	pipenv install --dev
 
 test:
-	pipenv run -- py.test tests -s -v
+	pipenv run -- py.test test_virustotal -s -v
