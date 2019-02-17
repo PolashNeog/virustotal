@@ -8,12 +8,13 @@ public API limit.
 VirusTotal: https://www.virustotal.com
 Public API reference: https://developers.virustotal.com/v2.0/reference
 """
+import os
 import time
 import requests
 import datetime
 from pprint import pprint
 from ratelimit import limits, sleep_and_retry
-from secret_dev import *
+# from virustotal.secret_dev import *
 
 
 class Incident:
@@ -53,6 +54,7 @@ class VirusTotal:
 
         :param incident: an Incident class URL, as a string
         """
+        vt_key = os.environ["VTKEY"]
         if incident.scan_id:
             params = {'apikey': vt_key,
                       'resource': incident.scan_id,
@@ -75,7 +77,6 @@ class VirusTotal:
             resp = r.json()
 
             if resp['response_code'] == -1:
-                print("ITS HERE")
                 incident.scan_complete = True
                 incident.scan_date = datetime.datetime.today().strftime('%Y-%m-%d')
                 incident.error = resp['verbose_msg']
@@ -120,10 +121,10 @@ class VirusTotal:
 
 
 if __name__ == '__main__':
-    pass
-    # batch = VirusTotal()
-    # batch.add_resource('ogle', 'url')
-    # batch.add_resource('435345wbungeeeokok.com', 'url')
+    # pass
+    batch = VirusTotal()
+    batch.add_resource('ogle', 'url')
+    batch.add_resource('435345wbungeeeokok.com', 'url')
     # batch.add_resource('www.pokokoktlyye.com', 'url')
     # batch.add_resource('www.breeeeeetyo.com', 'url')
     # # batch.add_resource('www.toggegole.com', 'url')
@@ -133,11 +134,11 @@ if __name__ == '__main__':
     #
     # start = time.perf_counter()
     #
-    # urls = [i for i in batch.incidents if i.category == 'url']
+    urls = [i for i in batch.incidents if i.category == 'url']
     # print('URLS:', urls)
     #
-    # for url in urls:
-    #     batch.scan_url(url)
+    for url in urls:
+        batch.scan_url(url)
     #     print(time.perf_counter() - start)
     #
     # print('\nFINAL RESULTS FROM BATCH:')
