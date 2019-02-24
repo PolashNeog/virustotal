@@ -12,13 +12,13 @@ ___
 
 #### Setup and Installation:
 
-##### Follow [these instructions](https://www.virustotal.com/en/documentation/public-api/#) to create a free VirusTotal public API key.
+##### Follow [the instructions](https://www.virustotal.com/en/documentation/public-api/#) to create a free VirusTotal public API key.
 
 ##### Fork repo, cd into project root, then...
 
 ```python
 pip install pipenv
-pipenv install
+pipenv install --ignore-pipfile
 ```
 
 ##### Add your API key to a secrets file (don't forget to add it to your .gitignore)...
@@ -40,10 +40,8 @@ ___
 ##### You can run from the command line inside the pipenv shell...
 
 ```python
-# NOTE: no argparse integration yet, so execution controlled manually inside
-# main statement in virustotal.py
 pipenv shell
-python virustotal.py
+python virustotal.py -u http://www.someexample.com https://anotherexample.com
 exit
 ```
 
@@ -51,13 +49,7 @@ exit
 
 ```python
 # See argparse comment above
-pipenv run python virustotal.py
+pipenv run python virustotal.py -uf path/to/url/file.csv
 ```
 
 ##### ...or configure and run however you see fit.
-
-___
-
-#### Features coming soon...
-
-* argparse for running from command line
