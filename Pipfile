@@ -9,6 +9,8 @@ verify_ssl = true
 requests = "*"
 ratelimit = "*"
 pytest = "*"
+prettytable = "*"
+validators = "*"
 
 [requires]
 python_version = "3.7"

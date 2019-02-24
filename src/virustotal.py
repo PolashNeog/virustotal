@@ -1,8 +1,11 @@
-"""Given URLs or files (file hashing/scanning coming soon!), queries the VirusTotal
-API for available scan reports. If no information is found for any incident, the item
-is automatically submitted for scanning and the result is fetched when completed.
+"""Given one or more URLs, queries the VirusTotal API for available scan reports. If no report is
+found for any URL, the URL is automatically submitted for scanning and the result is fetched when
+completed.
 
-The code limits the number of API calls to 4 per minute to conform to VirusTotal's
+URLs are passed either as command line arguments with the -u flag, or in a .csv file with the
+filepath and the -uf flag.
+
+The number of API calls is limited to 4 per minute to conform with VirusTotal's
 public API limit.
 
 VirusTotal: https://www.virustotal.com
@@ -10,136 +13,130 @@ Public API reference: https://developers.virustotal.com/v2.0/reference
 """
 import os
 import time
+import validators
+import argparse
 import requests
-import datetime
-from pprint import pprint
+from prettytable import PrettyTable
 from ratelimit import limits, sleep_and_retry
-# from virustotal.secret_dev import *
+
+a_counter = 0
 
 
-class Incident:
-    def __init__(self, name, category):
-        self.name = name
-        self.category = category
-        self.scan_complete = False
+def counter():
+    """Increments and resets a global counter variable used for regulating the 4 allowed VirusTotal
+    API calls per minute."""
+    global a_counter
+
+    if a_counter < 4:
+        a_counter += 1
+    else:
+        a_counter = 1
+        print("Maximum of 4 VirusTotal API calls per minute has been reached. Waiting 60 seconds "
+              "to resume.")
+        time.sleep(60)
+    return
+
+
+class ScanBatch:
+    _batch_items = []
+
+    def __init__(self, item):
+        self._batch_items.append(self)
+        self.item = item
         self.scan_id = None
         self.scan_date = None
         self.positives = None
-        self.scan_count = None
-        self.error = None
+        self.total_scans = None
+        self.verbose_msg = None
 
     def __repr__(self):
-        return self.name
+        return self.item
 
-
-class VirusTotal:
-    def __init__(self):
-        self.base_url = 'https://www.virustotal.com/vtapi/v2/'
-        self.incidents = []
-
-    def add_resource(self, resource, category):
-        """Creates a new Incident class object and adds it to the list of incidents.
-
-        :param resource: url or filename, as string
-        :param category: category of resource, eg 'url' or 'file'
-        """
-        incident = Incident(resource, category)
-        self.incidents.append(incident)
+    def __str__(self):
+        return self.item
 
     @sleep_and_retry
     @limits(calls=4, period=61)
-    def scan_url(self, incident):
-        """Queries the VT API for a given URL. If no report found, submits URL for
-        scanning. Decorators prevent exceeding VT's public API limit of 4/min.
-
-        :param incident: an Incident class URL, as a string
-        """
-        vt_key = os.environ["VTKEY"]
-        if incident.scan_id:
-            params = {'apikey': vt_key,
-                      'resource': incident.scan_id,
-                      'scan': 1}
-        else:
-            params = {'apikey': vt_key,
-                      'resource': incident.name,
-                      'scan': 1}
-
-        req_url = self.base_url + 'url/report'
-        r = requests.get(req_url, params=params)
+    def get_url_report(self, attempts=0):
+        """Queries the VT API for a given URL. If no report found, submits URL for scanning.
+        Decorators prevent exceeding VT's public API limit of 4/min."""
+        base_url = "https://www.virustotal.com/vtapi/v2/"
+        vt_url = base_url + "url/report"
+        params = {"apikey": os.environ["VTKEY"],
+                  "resource": self,
+                  "scan": 1}
+        # counter()
+        print(f"Querying VirusTotal for {self}")
+        r = requests.get(vt_url, params=params)
 
         if r.status_code == 204:
             print('VT public API rate limit reached. Automatic retry in 60 seconds.')
             time.sleep(60)
-            self.scan_url(incident)
+            self.get_url_report()
 
-        else:
-            # TODO: raise JSONDecodeError("Expecting value", s, err.value) from None
+        elif r.status_code == requests.codes.ok:
             resp = r.json()
-
-            if resp['response_code'] == -1:
-                incident.scan_complete = True
-                incident.scan_date = datetime.datetime.today().strftime('%Y-%m-%d')
-                incident.error = resp['verbose_msg']
-                pprint(resp['verbose_msg'])
-                return
-
-            elif 'positives' in resp:
-                incident.scan_complete = True
-                incident.scan_id = resp['scan_id']
-                incident.scan_date = resp['scan_date']
-                incident.positives = resp['positives']
-                incident.scan_count = resp['total']
-                pprint(r.json())
-                return
-
+            # check if URL has report
+            if "total" in resp:
+                self.scan_date = resp["scan_date"]
+                self.positives = resp["positives"]
+                self.scan_id = resp["scan_id"]
+                self.total_scans = resp["total"]
             else:
-                incident.scan_id = resp['scan_id']
-                self.scan_url(incident.name)
-                pprint(r.json())
-
+                if attempts < 4:
+                    attempts += 1
+                    time.sleep(2)
+                    ScanBatch.get_url_report(self, attempts)
+                else:
+                    self.verbose_msg = resp["verbose_msg"]
+        else:
+            self.verbose_msg = f"Http Error: response {r.status_code}"
         return
-
-    def build_result_dict(self):
-        """Builds and prints dictionary object for each incident."""
-        result = {'incident': None,
-                  'scan_count': None,
-                  'positives': None,
-                  'scan_date': None,
-                  'scan_complete': False,
-                  'error': None}
-
-        for i in self.incidents:
-            result['incident'] = i.name
-            result['scan_count'] = i.scan_count
-            result['scan_complete'] = i.scan_complete
-            result['scan_date'] = i.scan_date
-            result['positives'] = i.positives
-            result['error'] = i.error
-            result['scan_id'] = i.scan_id
-            print('')
-            pprint(result)
 
 
 if __name__ == '__main__':
-    # pass
-    batch = VirusTotal()
-    batch.add_resource('ogle', 'url')
-    batch.add_resource('435345wbungeeeokok.com', 'url')
-    # batch.add_resource('www.pokokoktlyye.com', 'url')
-    # batch.add_resource('www.breeeeeetyo.com', 'url')
-    # # batch.add_resource('www.toggegole.com', 'url')
-    # # batch.add_resource('www.reawwwmamamoo.com', 'url')
-    # # batch.add_resource('www.nytwe432sfgrtimessss.com', 'url')
-    # # batch.add_resource('danger.exe', 'file')
-    #
-    # start = time.perf_counter()
-    #
-    urls = [i for i in batch.incidents if i.category == 'url']
-    # print('URLS:', urls)
-    #
-    for url in urls:
-        batch.scan_url(url)
-    #     print(time.perf_counter() - start)
-    #
-    # print('\nFINAL RESULTS FROM BATCH:')
-    # batch.build_result_dict()
+
+    parser = argparse.ArgumentParser()
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--urls', '-u', type=str, nargs='*',
+                       help='1 or more URLs, space separated')
+    group.add_argument('--urls_file', '-uf', type=str, nargs='?',
+                       help='path to .csv file listing URLs to scan, 1 URL per line')
+
+    args = parser.parse_args()
+
+    if args.urls:
+        print("urls:", args.urls)
+        urls = args.urls
+
+    else:  # args.urls_file:
+        with open(args.urls_file, 'r') as f:
+            urls = [i.rstrip() for i in f.readlines()]
+        print("urls from file:", urls)
+
+    incidents = [ScanBatch(i) for i in urls]
+    invalid_urls = []
+
+    while incidents:
+        try:
+            i = incidents.pop()
+            if validators.url(str(i)) is True:
+                ScanBatch.get_url_report(i)
+            else:
+                invalid_urls.append(i)
+        except IndexError:
+            pass
+
+    print("Invalid URLs:", invalid_urls)
+
+    # NOTE: anti-pattern, accessing protected member outside class
+    all_items = ScanBatch._batch_items
+
+    p = PrettyTable()
+    p.field_names = ["URL", "positive hits", "total scans", "scan date"]
+
+    for i in all_items:
+        if i not in invalid_urls:
+            p.add_row([i.item, i.positives, i.total_scans, i.scan_date])
+    print()
+    print(p)

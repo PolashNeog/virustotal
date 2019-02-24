@@ -27,7 +27,7 @@ pipenv install
 # secrets.py contents...
 
 # VirusTotal API key
-vt_key = "your secret API key"
+vt_key = "your_API_key"
 
 ```
 
@@ -54,7 +54,7 @@ exit
 pipenv run python virustotal.py
 ```
 
-##### ...or configure and run however you seen fit.
+##### ...or configure and run however you see fit.
 
 ___
 
