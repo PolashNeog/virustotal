@@ -18,7 +18,7 @@ ___
 
 ```python
 pip install pipenv
-pipenv install \-\-ignore\-pipfile
+pipenv install --ignore-pipfile
 ```
 
 ##### Add your API key to a secrets file (don't forget to add it to your .gitignore)...
@@ -49,7 +49,7 @@ exit
 
 ```python
 # See argparse comment above
-pipenv run python virustotal.py \-uf path\/to\/url\/file.csv
+pipenv run python virustotal.py -uf path/to/url/file.csv
 ```
 
 ##### ...or configure and run however you see fit.
